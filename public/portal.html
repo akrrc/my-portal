@@ -23,7 +23,26 @@
       max-width: 500px;
       width: 100%;
     }
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 30px;
+      padding-bottom: 20px;
+      border-bottom: 2px solid #f0f0f0;
+    }
     h1 { color: #333; margin-bottom: 10px; }
+    .user-info { color: #666; font-size: 14px; }
+    .logout-btn {
+      background: #f44336;
+      color: white;
+      border: none;
+      padding: 8px 16px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 14px;
+    }
+    .logout-btn:hover { background: #d32f2f; }
     .subtitle { color: #666; margin-bottom: 30px; font-size: 14px; }
     .upload-area {
       border: 2px dashed #667eea;
@@ -91,7 +110,14 @@
 </head>
 <body>
   <div class="container">
-    <h1>📤 Upload Your Data</h1>
+    <div class="header">
+      <div>
+        <h1>📤 Upload Portal</h1>
+        <div class="user-info">Logged in as: <strong id="username"></strong></div>
+      </div>
+      <button class="logout-btn" id="logoutBtn">Logout</button>
+    </div>
+    
     <p class="subtitle">Secure file upload to Azure Cloud Storage</p>
     
     <div class="upload-area" id="uploadArea">
@@ -113,6 +139,24 @@
     const uploadBtn = document.getElementById('uploadBtn');
     const fileInfo = document.getElementById('fileInfo');
     const statusDiv = document.getElementById('status');
+    const usernameSpan = document.getElementById('username');
+    const logoutBtn = document.getElementById('logoutBtn');
+
+    // Load user info
+    fetch('/api/user')
+      .then(r => r.json())
+      .then(data => {
+        usernameSpan.textContent = data.username;
+      })
+      .catch(() => {
+        window.location.href = '/';
+      });
+
+    // Logout
+    logoutBtn.addEventListener('click', async () => {
+      await fetch('/api/logout', { method: 'POST' });
+      window.location.href = '/';
+    });
 
     // Click to upload
     uploadArea.addEventListener('click', () => fileInput.click());
@@ -155,7 +199,7 @@
       statusDiv.textContent = '⏳ Uploading...';
 
       try {
-        const response = await fetch('/upload', {
+        const response = await fetch('/api/upload', {
           method: 'POST',
           body: formData
         });

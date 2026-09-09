@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Login - Data Upload Portal</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { 
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+    .login-container {
+      background: white;
+      border-radius: 10px;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+      padding: 50px;
+      max-width: 400px;
+      width: 100%;
+    }
+    h1 { 
+      color: #333; 
+      margin-bottom: 10px; 
+      text-align: center;
+      font-size: 28px;
+    }
+    .subtitle { 
+      color: #666; 
+      margin-bottom: 30px; 
+      text-align: center;
+      font-size: 14px;
+    }
+    .form-group {
+      margin-bottom: 20px;
+    }
+    label {
+      display: block;
+      color: #333;
+      font-weight: 600;
+      margin-bottom: 8px;
+      font-size: 14px;
+    }
+    input[type="text"],
+    input[type="password"] {
+      width: 100%;
+      padding: 12px;
+      border: 2px solid #e0e0e0;
+      border-radius: 8px;
+      font-size: 14px;
+      transition: border-color 0.3s;
+    }
+    input[type="text"]:focus,
+    input[type="password"]:focus {
+      outline: none;
+      border-color: #667eea;
+    }
+    .login-btn {
+      width: 100%;
+      padding: 12px;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-size: 16px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: transform 0.2s;
+      margin-top: 10px;
+    }
+    .login-btn:hover { transform: translateY(-2px); }
+    .login-btn:disabled { opacity: 0.6; cursor: not-allowed; }
+    .error {
+      color: #d32f2f;
+      font-size: 14px;
+      margin-top: 10px;
+      padding: 10px;
+      background: #ffebee;
+      border-radius: 4px;
+      display: none;
+    }
+    .demo-creds {
+      background: #e3f2fd;
+      padding: 15px;
+      border-radius: 8px;
+      margin-top: 30px;
+      font-size: 13px;
+      color: #1565c0;
+    }
+    .demo-creds strong { display: block; margin-bottom: 8px; }
+    .demo-creds p { margin: 4px 0; }
+  </style>
+</head>
+<body>
+  <div class="login-container">
+    <h1>🔒 Login</h1>
+    <p class="subtitle">Enter your credentials to access the upload portal</p>
+    
+    <form id="loginForm">
+      <div class="form-group">
+        <label for="username">Username</label>
+        <input 
+          type="text" 
+          id="username" 
+          name="username" 
+          required 
+          autocomplete="username"
+          placeholder="Enter username"
+        >
+      </div>
+
+      <div class="form-group">
+        <label for="password">Password</label>
+        <input 
+          type="password" 
+          id="password" 
+          name="password" 
+          required
+          autocomplete="current-password"
+          placeholder="Enter password"
+        >
+      </div>
+
+      <button type="submit" class="login-btn" id="loginBtn">Login</button>
+      <div id="error" class="error"></div>
+    </form>
+
+    <div class="demo-creds">
+      <strong>Demo Credentials:</strong>
+      <p><strong>Username:</strong> admin</p>
+      <p><strong>Password:</strong> password123</p>
+      <p style="margin-top: 10px;"><strong>Or:</strong></p>
+      <p><strong>Username:</strong> user</p>
+      <p><strong>Password:</strong> user123</p>
+    </div>
+  </div>
+
+  <script>
+    document.getElementById('loginForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      
+      const username = document.getElementById('username').value;
+      const password = document.getElementById('password').value;
+      const errorDiv = document.getElementById('error');
+      const loginBtn = document.getElementById('loginBtn');
+
+      errorDiv.style.display = 'none';
+      loginBtn.disabled = true;
+      loginBtn.textContent = 'Logging in...';
+
+      try {
+        const response = await fetch('/api/login', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ username, password })
+        });
+
+        const data = await response.json();
+
+        if (response.ok) {
+          // Redirect to portal
+          window.location.href = '/';
+        } else {
+          errorDiv.style.display = 'block';
+          errorDiv.textContent = data.message || 'Login failed';
+          loginBtn.disabled = false;
+          loginBtn.textContent = 'Login';
+        }
+      } catch (error) {
+        errorDiv.style.display = 'block';
+        errorDiv.textContent = 'Error: ' + error.message;
+        loginBtn.disabled = false;
+        loginBtn.textContent = 'Login';
+      }
+    });
+  </script>
+</body>
+</html>
